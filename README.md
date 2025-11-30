@@ -42,8 +42,8 @@ Capstone-Dashboard/
 ├── requirements.txt               # Python dependencies
 └── README.md                      # This file
 
-📦 2. Environment Setup (Recommended)
-Step 1 — Install Python
+## 📦 2. Environment Setup (Recommended)
+### Step 1 — Install Python
 
 Requires Python 3.10+
 
@@ -54,7 +54,7 @@ Be sure to check:
 
 ✔ “Add Python to PATH”
 
-Step 2 — Create a Virtual Environment
+### Step 2 — Create a Virtual Environment
 python -m venv .venv
 
 
@@ -71,7 +71,7 @@ You should now see something like:
 
 (.venv) C:\path\to\project>
 
-Step 3 — Install Required Packages
+### Step 3 — Install Required Packages
 pip install -r requirements.txt
 
 
@@ -79,7 +79,7 @@ If spaCy complains about a missing model:
 
 python -m spacy download en_core_web_sm
 
-🚀 3. Running the Dashboard
+## 🚀 3. Running the Dashboard
 
 If you are using the pre-generated output files already included in the repo, you can launch immediately:
 
@@ -88,11 +88,11 @@ python app.py
 
 No preprocessing required.
 
-🧪 4. Full Workflow (If Starting From Raw Data)
+## 🧪 4. Full Workflow (If Starting From Raw Data)
 
 If beginning with the raw file 2024_consolidated_ai_inventory_raw_v2.xls, follow this exact order:
 
-Step 1 — Run EDA + Topic Modeling
+### Step 1 — Run EDA + Topic Modeling
 python eda_and_topic_modeling.py
 
 
@@ -111,7 +111,7 @@ Saves multiple intermediate datasets
 ⚠️ This step is computationally heavy (UMAP, HDBSCAN, embeddings).
 Expect it to take several minutes depending on your hardware.
 
-Step 2 — Run Data Consolidation Script
+### Step 2 — Run Data Consolidation Script
 python final_data_file_consolidated.py
 
 
@@ -128,14 +128,14 @@ combined_data_final.csv
 
 This is the file consumed by the dashboard.
 
-Step 3 — (Optional) Model Performance Visualizations
+### Step 3 — (Optional) Model Performance Visualizations
 python final_models_w_visual.py
 
 
 Run only after final_data_file_consolidated.py
 because it expects combined_data_final.csv.
 
-Step 4 — Launch the Dashboard
+### Step 4 — Launch the Dashboard
 python app.py
 
 ⚠️ Performance Note
