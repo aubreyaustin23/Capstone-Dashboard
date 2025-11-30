@@ -1808,4 +1808,4 @@ def update_proposal_bureaus(selected_agency):
 
 # ----------------------
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
