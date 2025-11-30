@@ -569,16 +569,6 @@ auc2 = roc_auc_score(y_test2, y_prob2)
 print(f"Accuracy: {acc2:.4f} | Precision: {prec2:.4f} | Recall: {rec2:.4f} | F1: {f12:.4f} | AUC: {auc2:.4f}")
 print(confusion_matrix(y_test2, y_pred2))
 
-# Top coefficients
-coef_m2_logit = pd.Series(logit_m2.coef_[0], index=FEATURE_COLS).sort_values(key=lambda s: s.abs(), ascending=False)
-top_m2_logit = coef_m2_logit.head(15).to_frame('coef').reset_index().rename(columns={'index':'feature'})
-# Map topic IDs to primary_topic_keywords from your dataset
-topic_keyword_map = df.set_index('primary_topic_k40_id')['primary_topic_keywords'].to_dict()
-top_m2_logit['topic_words'] = top_m2_logit['feature'].map(topic_keyword_map)
-# Label effect
-top_m2_logit['effect'] = np.where(top_m2_logit['coef'] > 0, '↑ high_complexity', '↓ high_complexity')
-print(top_m2_logit)
-
 # H2 Logistic Model ROC Curve
 fpr2, tpr2, thresholds2 = roc_curve(y_test2, y_prob2)
 roc_auc2 = auc(fpr2, tpr2)
@@ -706,11 +696,11 @@ top_neg_idx3 = np.argsort(coefs3)[:20]         # top -weights
 
 top_pos3 = pd.DataFrame({
     "term": feature_names[top_pos_idx3],
-    "coef": coefs[top_pos_idx3]
+    "coef": coefs3[top_pos_idx3]
 })
 top_neg3 = pd.DataFrame({
     "term": feature_names[top_neg_idx3],
-    "coef": coefs[top_neg_idx3]
+    "coef": coefs3[top_neg_idx3]
 })
 
 print("\nTop terms → Contract (positive coefficients):")
