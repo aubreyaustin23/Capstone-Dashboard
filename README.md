@@ -14,17 +14,18 @@ This README explains how to set up the environment **from scratch**, as well as 
 ---
 
 ## 📌 1. Project Structure
+'''
 Capstone-Dashboard/
 │
-├── app.py                         # Main dashboard application
-├── eda_and_topic_modeling.py      # Full preprocessing + BERTopic workflow
-├── final_data_file_consolidated.py # Merges outputs → produces final dataset
-├── final_models_w_visual.py       # Optional model performance visualizations
+├── app.py                             # Main dashboard application
+├── eda_and_topic_modeling.py          # Full preprocessing + BERTopic workflow
+├── final_data_file_consolidated.py    # Merges outputs → produces final dataset
+├── final_models_w_visual.py           # Optional model performance visualizations
 │
-├── 2024_consolidated_ai_inventory_raw_v2.xls    # Raw input data
-├── combined_data_final.csv                        # Final processed dataset (used by app.py)
+├── 2024_consolidated_ai_inventory_raw_v2.xls   # Raw input data
+├── combined_data_final.csv                     # Final dataset used in app.py
 │
-├── Topic Modeling/                # All topic-modeling outputs & intermediate files
+├── Topic Modeling/                    # All topic-modeling outputs & intermediate files
 │   ├── lda_outputs/
 │   │   ├── aiusecase_with_lda_k40.csv
 │   │   ├── doc_topic_long_lda_k40.csv
@@ -36,11 +37,12 @@ Capstone-Dashboard/
 │   └── Topic Name Mapping.xlsx
 │
 ├── Assets/
-│   ├── custom_styles.css          # Dashboard CSS
-│   └── logo.png                   # Dashboard logo
+│   ├── custom_styles.css              # Dashboard CSS
+│   └── logo.png                       # Dashboard logo
 │
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
+├── requirements.txt                   # Python dependencies
+└── README.md
+'''
 
 ## 📦 2. Environment Setup (Recommended)
 ### Step 1 — Install Python
