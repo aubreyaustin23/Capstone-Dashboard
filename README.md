@@ -14,7 +14,7 @@ This README explains how to set up the environment **from scratch**, as well as 
 ---
 
 ## 📌 1. Project Structure
-'''
+```
 Capstone-Dashboard/
 │
 ├── app.py                             # Main dashboard application
@@ -42,7 +42,7 @@ Capstone-Dashboard/
 │
 ├── requirements.txt                   # Python dependencies
 └── README.md
-'''
+```
 
 ## 📦 2. Environment Setup (Recommended)
 ### Step 1 — Install Python
