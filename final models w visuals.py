@@ -39,7 +39,7 @@ DATA_PATH = Path('combined_data_final.xlsx')
 FEATURE_COLS = [f'lda_t{str(i).zfill(2)}' for i in range(40)]
 M1_TARGET = 'rights_impacting_bin'
 M2_TARGET = 'complexity_score'
-M3_TARGET = 'Was the AI system involved in this use case developed (or is it to be developed) under contract(s) or in-house?' 
+M3_TARGET = 'Was the AI system involved in this use case developed (or is it to be developed) under contract(s) or in-house? ' 
 
 
 # load dataset
@@ -62,7 +62,7 @@ def normalize_resourcing(val):
     if "contract" in s or "external" in s:
         if "in-house" in s or "in house" in s or "combination" in s or "both" in s:
             return "Both"
-        return "Contracting Resources"
+        return "External Contracting"
     # In-house only
     if "in-house" in s or "in house" in s:
         return "In-House"
@@ -80,7 +80,7 @@ def normalize_resourcing(val):
     # Fallback
     return "Unknown"
 
-df["clean_resourcing"] = df["Was the AI system involved in this use case developed (or is it to be developed) under contract(s) or in-house?"] \
+df["clean_resourcing"] = df["Was the AI system involved in this use case developed (or is it to be developed) under contract(s) or in-house? "] \
                             .apply(normalize_resourcing)
 
 def normalize_pii(val):
@@ -445,8 +445,8 @@ pipe_m1.fit(X_train1, y_train1)
 
 # Evaluation ----
 y_pred1 = pipe_m1.predict(X_test1)
-acc = accuracy_score(y_test1, y_pred1)
-print(f"\nM1 — Multiclass Accuracy: {acc:.4f}")
+m1_accuracy = accuracy_score(y_test1, y_pred1)
+print(f"M1 High-Impact Accuracy: {m1_accuracy:.4f}")
 
 present = np.unique(np.concatenate([y_test1, y_pred1]))
 labels_used = sorted(present.astype(int))
@@ -463,16 +463,16 @@ print(cm)
 # Binarize test labels for one-vs-rest metrics
 Y_test_bin1 = label_binarize(y_test1, classes=labels_used)
 # predict_proba returns shape (n_samples, n_classes_present)
-probs = pipe_m1.predict_proba(X_test1)
+probs1 = pipe_m1.predict_proba(X_test1)
 
 # ROC curves
 plt.figure(figsize=(6,5))
 for i, cname in enumerate(names_used):
     if Y_test_bin1[:, i].sum() == 0:
         continue
-    fpr, tpr, _ = roc_curve(Y_test_bin1[:, i], probs[:, i])
-    roc_auc = auc(fpr, tpr)
-    plt.plot(fpr, tpr, lw=2, label=f"{cname} (AUC = {roc_auc:.2f})")
+    fpr1, tpr1, _ = roc_curve(Y_test_bin1[:, i], probs1[:, i])
+    roc_auc1 = auc(fpr1, tpr1)
+    plt.plot(fpr1, tpr1, lw=2, label=f"{cname} (AUC = {roc_auc1:.2f})")
 plt.plot([0,1],[0,1],'--',lw=1)
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
@@ -486,9 +486,9 @@ plt.figure(figsize=(6,5))
 for i, cname in enumerate(names_used):
     if Y_test_bin1[:, i].sum() == 0:
         continue
-    precision, recall, _ = precision_recall_curve(Y_test_bin1[:, i], probs[:, i])
-    ap = average_precision_score(Y_test_bin1[:, i], probs[:, i])
-    plt.plot(recall, precision, lw=2, label=f"{cname} (AP = {ap:.2f})")
+    precision1, recall1, _ = precision_recall_curve(Y_test_bin1[:, i], probs1[:, i])
+    ap1 = average_precision_score(Y_test_bin1[:, i], probs1[:, i])
+    plt.plot(recall1, precision1, lw=2, label=f"{cname} (AP = {ap1:.2f})")
 plt.xlabel("Recall")
 plt.ylabel("Precision")
 plt.title("M1 — Precision–Recall Curves (One-vs-Rest)")
@@ -497,38 +497,38 @@ plt.tight_layout()
 plt.show()
 
 # Top terms per class (interpretability) ----
-vec = pipe_m1.named_steps["tfidf"]
-clf = pipe_m1.named_steps["clf"]
-feature_names = np.array(vec.get_feature_names_out())
+vec1 = pipe_m1.named_steps["tfidf"]
+clf1 = pipe_m1.named_steps["clf"]
+feature_names = np.array(vec1.get_feature_names_out())
 
 # clf.classes_ gives the classes seen in training for coef_ row order
-trained_class_labels = clf.classes_.astype(int)
-trained_class_names  = [class_names[i] for i in trained_class_labels]
+trained_class_labels1 = clf1.classes_.astype(int)
+trained_class_names1  = [class_names[i] for i in trained_class_labels1]
 
-coef_arr = clf.coef_  # shape = (n_classes_present, n_features)
-for row_idx, cname in enumerate(trained_class_names):
-    coefs = coef_arr[row_idx]
-    top_pos_idx = np.argsort(coefs)[-20:][::-1]
-    top_neg_idx = np.argsort(coefs)[:20]
+coef_arr1 = clf1.coef_  # shape = (n_classes_present, n_features)
+for row_idx, cname in enumerate(trained_class_names1):
+    coefs1 = coef_arr1[row_idx]
+    top_pos_idx1 = np.argsort(coefs1)[-20:][::-1]
+    top_neg_idx1 = np.argsort(coefs1)[:20]
 
-    top_pos = pd.DataFrame({
-        "term": feature_names[top_pos_idx],
-        "coef": coefs[top_pos_idx]
+    top_pos1 = pd.DataFrame({
+        "term": feature_names[top_pos_idx1],
+        "coef": coefs1[top_pos_idx1]
     })
-    top_neg = pd.DataFrame({
-        "term": feature_names[top_neg_idx],
-        "coef": coefs[top_neg_idx]
+    top_neg1 = pd.DataFrame({
+        "term": feature_names[top_neg_idx1],
+        "coef": coefs1[top_neg_idx1]
     })
 
     print(f"\nTop terms → {cname} (positive coefficients):")
-    print(top_pos)
+    print(top_pos1)
     print(f"Top terms → NOT {cname} (negative coefficients):")
-    print(top_neg)
+    print(top_neg1)
 
 # Probability histograms for each class ----
 plt.figure(figsize=(7,4))
 for i, cname in enumerate(names_used):
-    plt.hist(probs[:, i], bins=30, alpha=0.5, label=cname)
+    plt.hist(probs1[:, i], bins=30, alpha=0.5, label=cname)
 plt.title("M1 — Predicted Probability Distributions (Test Set)")
 plt.xlabel("Predicted probability")
 plt.ylabel("Count")
@@ -538,23 +538,29 @@ plt.show()
 
 # Model 2: Complexity Score (Linear Regression)
 
-# Define binary target: 1 = above median, 0 = below or equal
-y_bin2 = (df['complexity_score'] > df['complexity_score'].median()).astype(int)
-X2 = df[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0.0)
+FEATURE_COLS = [
+    c for c in df.columns
+    if str(c).startswith("topic_") or str(c).startswith("primary_topic")
+]
 
-# Split & scale
-X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y_bin2, test_size=0.25, random_state=42, stratify=y_bin2)
+y_bin2 = (df['complexity_score'] > df['complexity_score'].median()).astype(int)
+X2 = df[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
+
+X_train2, X_test2, y_train2, y_test2 = train_test_split(
+    X2, y_bin2, test_size=0.25, random_state=42, stratify=y_bin2
+)
+
 scaler = StandardScaler(with_mean=False)
-X_train_sc = scaler.fit_transform(X_train2)
-X_test_sc  = scaler.transform(X_test2)
+X_train2_sc = scaler.fit_transform(X_train2)
+X_test2_sc  = scaler.transform(X_test2)
 
 # Fit logistic model
-logit_m2 = LogisticRegression(max_iter=1000, solver='lbfgs')
-logit_m2.fit(X_train_sc, y_train2)
+logit_m2 = LogisticRegression(max_iter=1000)
+logit_m2.fit(X_train2_sc, y_train2)
 
 # Predict and evaluate
-y_pred2 = logit_m2.predict(X_test_sc)
-y_prob2 = logit_m2.predict_proba(X_test_sc)[:,1]
+y_pred2 = logit_m2.predict(X_test2_sc)
+y_prob2 = logit_m2.predict_proba(X_test2_sc)[:,1]
 
 acc2 = accuracy_score(y_test2, y_pred2)
 prec2, rec2, f12, _ = precision_recall_fscore_support(y_test2, y_pred2, average='binary')
@@ -590,22 +596,18 @@ plt.show()
 
 # Model 3: Resourcing Strategy Model
 # Prepare target (strict mapping, no made-up names) ----
-def map_dev_type(x: str):
-    if pd.isna(x):
-        return np.nan
-    s = str(x).strip().lower()
-    # Keep explicit phrases first (as observed)
-    if s == "developed with contracting resources." or "contract" in s:
-        return "contract"
-    if s == "developed in-house." or "in-house" in s or "in house" in s:
-        return "in-house"
-    return np.nan  # anything unclear gets dropped
+def map_dev_type(x):
+    if pd.isna(x): return np.nan
+    s = str(x).lower()
+    if "contract" in s: return "contract"
+    if "in-house" in s or "in house" in s: return "in-house"
+    return np.nan
 
 y_text3 = df[M3_TARGET].apply(map_dev_type)
 mask = y_text3.isin(["contract", "in-house"])
 
 dfm3 = df.loc[mask].copy()
-y3 = y_text3.loc[mask].map({"contract": 1, "in-house": 0}).astype(int)  # 1=contract, 0=in-house
+y3 = y_text3.loc[mask].map({"contract": 1, "in-house": 0})  # 1=contract, 0=in-house
 
 print("M3 — label distribution:")
 print(pd.Series(y3).map({1:"contract", 0:"in-house"}).value_counts())
@@ -623,15 +625,10 @@ TEXT_COLS3 = [
 # Keep only columns that actually exist (defensive)
 TEXT_COLS3 = [c for c in TEXT_COLS3 if c in dfm3.columns]
 
-def row_to_text(row):
-    parts = []
-    for c in TEXT_COLS3:
-        val = row.get(c, "")
-        if pd.notna(val):
-            parts.append(str(val))
-    return " | ".join(parts)
+def row_text_3(row):
+    return " | ".join(str(row[c]) for c in TEXT_COLS3 if pd.notna(row.get(c)))
 
-X_text3 = dfm3.apply(row_to_text, axis=1)
+X_text3 = dfm3.apply(row_text_3, axis=1)
 
 # Train/test split ----
 X_train3, X_test3, y_train3, y_test3 = train_test_split(
