@@ -1,0 +1,63 @@
+column,class,n,nn,na_pct,is_numeric,is_datetime,nunique,card_ratio,avg_len,pct_long
+Agency,categorical,2133,2133,0.0,False,False,42,0.01969057665260197,30.334739803094234,0.0
+Agency Abbreviation,categorical,2133,2133,0.0,False,False,41,0.01922175339896859,3.2123769338959214,0.0
+Do you have a process in place to request access to computing resources for model training and development of the AI involved in this use case?,categorical,2133,1191,0.44163150492264414,False,False,6,0.005037783375314861,3.2947103274559195,0.0
+Do you have access to an enterprise data catalog or agency-wide data repository that enables you to identify whether or not the necessary datasets exist and are ready to develop your use case?,categorical,2133,1219,0.4285044538209095,False,False,6,0.004922067268252666,3.0598851517637407,0.0
+Does the agency have access to the code associated with the AI use case?,categorical,2133,1060,0.503047351148617,False,False,7,0.006603773584905661,50.511320754716984,0.0
+Does this AI use case disseminate information to the public?,categorical,2133,1060,0.503047351148617,False,False,3,0.002830188679245283,2.1547169811320757,0.0
+Does this AI use case have an associated Authority to Operate (ATO) for an AI system?,categorical,2133,1187,0.44350679793717773,False,False,8,0.006739679865206402,3.472620050547599,0.0
+Does this AI use case involve personally identifiable information (PII) that is maintained by the agency?,categorical,2133,1080,0.49367088607594933,False,False,3,0.002777777777777778,2.1333333333333333,0.0
+Does this project include custom-developed code?,categorical,2133,1066,0.5002344116268167,False,False,4,0.00375234521575985,2.852720450281426,0.0
+"For this AI use case, is the required IT infrastructure provisioned via a centralized intake form or process inside the agency?",categorical,2133,1196,0.43928738865447725,False,False,6,0.005016722408026756,3.240802675585284,0.0
+"For this particular use case, can the AI carry out a decision or action without direct human involvement that could result in a significant impact on rights or safety?",categorical,2133,272,0.8724800750117205,False,False,6,0.022058823529411766,59.599264705882355,0.025735294117647058
+Has an AI impact assessment been conducted for this AI use case?,categorical,2133,277,0.8701359587435537,False,False,5,0.018050541516245487,7.696750902527076,0.0
+Has an independent evaluation of the AI use case been conducted?,categorical,2133,239,0.8879512423816222,False,False,9,0.03765690376569038,40.55648535564853,0.07531380753138076
+Has communication regarding the provisioning of your requested resources been timely?,categorical,2133,1147,0.4622597280825129,False,False,4,0.0034873583260680036,3.656495204882302,0.0
+Has the Senior Agency Official for Privacy (SAOP) assessed the privacy risks associated with this AI use case?,categorical,2133,1019,0.5222691045475856,False,False,5,0.004906771344455349,2.2051030421982336,0.0
+Has your agency requested an extension to implement the minimum risk management practices for this AI use case?,categorical,2133,632,0.7037037037037037,False,False,4,0.006329113924050633,53.42246835443038,0.0
+How long have you waited for the necessary developer tools to implement the AI use case? ,categorical,2133,1040,0.5124238162212846,False,False,5,0.004807692307692308,17.014423076923077,0.0
+Is the AI use case found in the below list of general commercial AI products and services?,categorical,2133,2086,0.022034692920768872,False,False,25,0.011984659635666348,26.225790987535955,0.0023969319271332696
+"Is the AI use case rights-impacting, safety-impacting, both, or neither?",categorical,2133,2094,0.01828410689170179,False,False,8,0.0038204393505253103,8.404966571155683,0.0038204393505253103
+Is the AI used to significantly influence or inform decisions or actions that could have an adverse or negative impact on specific individuals or groups?,categorical,2133,272,0.8724800750117205,False,False,4,0.014705882352941176,4.955882352941177,0.0
+Is there an established fallback and escalation process for this AI use case in the event that an impacted individual or group would like to appeal or contest the AI system’s outcome?,categorical,2133,209,0.9020159399906236,False,False,6,0.028708133971291867,30.80861244019139,0.1291866028708134
+Is this AI use case supporting a High-Impact Service Provider (HISP) public-facing service?,categorical,2133,1110,0.4796061884669479,False,False,3,0.002702702702702703,2.0432432432432432,0.0
+Stage of Development,categorical,2133,2129,0.0018752930145334856,False,False,10,0.004697040864255519,22.201033348990137,0.0
+Use Case Topic Area,categorical,2133,2092,0.01922175339896859,False,False,29,0.013862332695984704,23.65248565965583,0.0
+Was the AI system involved in this use case developed (or is it to be developed) under contract(s) or in-house? ,categorical,2133,1168,0.4524144397562119,False,False,8,0.00684931506849315,33.76541095890411,0.0
+"Where practicable and consistent with applicable law and governmentwide policy, is there an established mechanism for individuals to opt-out from the AI functionality in favor of a human alternative?",categorical,2133,261,0.8776371308016877,False,False,8,0.03065134099616858,39.758620689655174,0.13793103448275862
+"If Other, please explain..5",ignored (too sparse),2133,6,0.9971870604781997,False,False,6,1.0,129.33333333333334,0.8333333333333334
+"Describe any agency-owned data used to train, fine-tune, and/or evaluate performance of the model(s) used in this use case.",open_ended,2133,837,0.6075949367088608,False,False,628,0.7502986857825568,116.73237753882916,0.4026284348864994
+Describe the AI system’s outputs.,open_ended,2133,2086,0.022034692920768872,False,False,1685,0.8077660594439118,153.28475551294343,0.5349952061361457
+"Has information regarding the AI use case, including performance metrics and intended use of the model, been made available for review and feedback within the agency?",open_ended,2133,1150,0.4608532583216127,False,False,10,0.008695652173913044,191.1504347826087,0.8991304347826087
+Has the AI use case been tested in operational or real-world environments to understand the performance and impact it may have on affected individuals or communities?,open_ended,2133,215,0.8992030004688233,False,False,7,0.03255813953488372,139.6325581395349,0.586046511627907
+"How are existing data science tools, libraries, data products, and internally-developed AI infrastructure being re-used for the current AI use case?",open_ended,2133,1131,0.469760900140647,False,False,18,0.015915119363395226,169.6215738284704,0.9407603890362511
+"How is the agency ensuring compliance with Information Quality Act guidelines, if applicable?",open_ended,2133,333,0.8438818565400844,False,False,70,0.21021021021021022,96.4054054054054,0.1921921921921922
+"If No, please explain.",open_ended,2133,68,0.9681200187529302,False,False,33,0.4852941176470588,152.02941176470588,0.7205882352941176
+"If Other, please explain..6",open_ended,2133,88,0.9587435536802625,False,False,25,0.2840909090909091,148.375,0.7272727272727273
+"If Other, please explain..7",open_ended,2133,71,0.96671354899203,False,False,14,0.19718309859154928,163.45070422535213,0.8450704225352113
+"If Other, please explain..8",open_ended,2133,83,0.9610876699484294,False,False,25,0.30120481927710846,137.6024096385542,0.8313253012048193
+Is there a process to monitor performance of the AI system’s functionality and changes to its impact on rights or safety as part of the post-deployment plan for the AI use case?,open_ended,2133,215,0.8992030004688233,False,False,7,0.03255813953488372,201.10232558139535,0.6837209302325581
+Is there available documentation for the model training and evaluation data that demonstrates the degree to which it is appropriate to be used in analysis or for making predictions?,open_ended,2133,1172,0.4505391467416784,False,False,19,0.016211604095563138,160.49317406143345,0.7286689419795221
+What are the key risks from using the AI for this particular use case and how were they identified?,open_ended,2133,232,0.8912330051570558,False,False,91,0.3922413793103448,198.14655172413794,0.5258620689655172
+What is the intended purpose and expected benefits of the AI?,open_ended,2133,2122,0.005157055789967169,False,False,2005,0.9448633364750235,407.14467483506127,0.855325164938737
+What steps has the agency taken to detect and mitigate significant disparities in the model’s performance across demographic groups for this AI use case?,open_ended,2133,170,0.9203000468823254,False,False,59,0.34705882352941175,107.67647058823529,0.21764705882352942
+Bureau,other_text,2133,2108,0.011720581340834535,False,False,325,0.15417457305502846,17.32447817836812,0.0004743833017077799
+Date Implemented,other_text,2133,717,0.6638537271448663,False,False,341,0.4755927475592748,8.573221757322175,0.0
+Date Initiated,other_text,2133,1278,0.4008438818565401,False,False,459,0.3591549295774648,8.812206572769954,0.0
+Date Retired,other_text,2133,190,0.9109235818096577,False,False,57,0.3,10.078947368421053,0.0
+Date when Acquisition and/or Development began,other_text,2133,989,0.536333802156587,False,False,410,0.41456016177957533,8.895854398382204,0.0
+How is the agency providing reasonable and timely notice regarding the use of AI when people interact with an AI-enabled service as a result of this AI use case?,other_text,2133,260,0.8781059540553211,False,False,18,0.06923076923076923,29.08076923076923,0.0
+"If Other, please explain.",other_text,2133,160,0.9249882794186591,False,False,47,0.29375,48.7375,0.09375
+"If Other, please explain..1",other_text,2133,85,0.9601500234411626,False,False,45,0.5294117647058824,47.21176470588235,0.11764705882352941
+"If Other, please explain..2",other_text,2133,122,0.9428035630567276,False,False,44,0.36065573770491804,54.48360655737705,0.09836065573770492
+"If Other, please explain..3",other_text,2133,143,0.9329582747304266,False,False,60,0.4195804195804196,55.50349650349651,0.11188811188811189
+"If Other, please explain..4",other_text,2133,216,0.8987341772151899,False,False,51,0.2361111111111111,49.074074074074076,0.10648148148148148
+"If the code is open-source, provide the link for the publicly available source code.",other_text,2133,123,0.9423347398030942,False,False,65,0.5284552845528455,30.788617886178862,0.024390243902439025
+Other (Use Case Topic Area),other_text,2133,200,0.9062353492733239,False,False,69,0.345,26.93,0.025
+Provide the Procurement Instrument Identifier(s) (PIID) of the contract(s) used.,other_text,2133,536,0.7487107360525083,False,False,331,0.6175373134328358,23.479477611940297,0.018656716417910446
+System Name,other_text,2133,779,0.6347866854195968,False,False,322,0.41335044929396664,28.01925545571245,0.01668806161745828
+Use Case Name,other_text,2133,2133,0.0,False,False,2044,0.9582747304266291,42.30145335208626,0.033286451007969994
+What steps has the agency taken to consult and incorporate feedback from groups affected by this AI use case?,other_text,2133,262,0.8771683075480544,False,False,18,0.06870229007633588,19.137404580152673,0.0
+Which HISP is the AI use case supporting?,other_text,2133,191,0.9104547585560244,False,False,16,0.08376963350785341,22.099476439790575,0.0
+Which public-facing service is the AI use case supporting?,other_text,2133,123,0.9423347398030942,False,False,18,0.14634146341463414,31.577235772357724,0.0
+"Which, if any, demographic variables does the AI use case explicitly use as model features?",other_text,2133,179,0.9160806375996249,False,False,52,0.2905027932960894,14.58659217877095,0.0111731843575419
