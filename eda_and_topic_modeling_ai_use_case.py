@@ -3854,6 +3854,464 @@ features_df = pd.concat([id_col_df.reset_index(drop=True), prob_df.reset_index(d
 
 print(features_df.head(10))
 
+import plotly.express as px
+import plotly.graph_objects as go
+from sklearn.decomposition import PCA
+
+# ------------------------------------------------------------
+# 0. PREP: Build LDA topic counts by DHS vs Non-DHS
+# ------------------------------------------------------------
+
+# Flag DHS rows
+is_dhs = aiusecase["Agency Abbreviation"].eq("DHS")
+
+# Use the LDA-enriched dataframe
+dhs_df_lda  = aiusecase_lda[is_dhs].copy()
+non_df_lda  = aiusecase_lda[~is_dhs].copy()
+
+# Base topic summary from your LDA table
+# summary_df has: Topic, Topic_Name, Doc_Count (overall count)
+topic_counts_lda = summary_df[["Topic", "Topic_Name", "Doc_Count"]].rename(
+    columns={"Doc_Count": "Total_Count"}
+)
+
+# Counts by topic for DHS vs Non-DHS
+dhs_counts = dhs_df_lda["lda_topic"].value_counts().rename_axis("Topic").reset_index(name="DHS_Count")
+non_counts = non_df_lda["lda_topic"].value_counts().rename_axis("Topic").reset_index(name="NonDHS_Count")
+
+# Merge together
+topic_counts_lda = (
+    topic_counts_lda
+      .merge(dhs_counts, on="Topic", how="left")
+      .merge(non_counts, on="Topic", how="left")
+)
+
+topic_counts_lda[["DHS_Count", "NonDHS_Count"]] = (
+    topic_counts_lda[["DHS_Count", "NonDHS_Count"]]
+      .fillna(0)
+      .astype(int)
+)
+
+# For convenience
+topic_counts_lda["TopicLabel"] = (
+    topic_counts_lda["Topic"].astype(str) + " – " + topic_counts_lda["Topic_Name"]
+)
+
+
+# ------------------------------------------------------------
+# A) Simple bar chart: Top DHS topics (LDA)
+# ------------------------------------------------------------
+
+tc_sorted = topic_counts_lda.sort_values("DHS_Count", ascending=False)
+
+fig = px.bar(
+    tc_sorted.head(15),
+    x="DHS_Count",
+    y="TopicLabel",
+    orientation="h",
+    title="Most Common Topics in DHS Use Cases (LDA)",
+    text="DHS_Count",
+    labels={
+        "DHS_Count": "Number of DHS Use Cases",
+        "TopicLabel": "Topic (short description)",
+    },
+)
+# Show largest at top
+fig.update_layout(
+    yaxis={"categoryorder": "total ascending"},
+    height=600
+)
+fig.show()
+
+
+# ------------------------------------------------------------
+# B) Treemap of DHS topics (LDA)
+# ------------------------------------------------------------
+
+treemap_df = tc_sorted[tc_sorted["DHS_Count"] > 0].copy()
+treemap_df["Label"] = (
+    treemap_df["Topic_Name"] + "<br>DHS use cases: " + treemap_df["DHS_Count"].astype(str)
+)
+
+fig = px.treemap(
+    treemap_df,
+    path=["Topic_Name"],
+    values="DHS_Count",
+    title="DHS Topics Treemap (LDA model)",
+)
+fig.update_traces(hovertemplate="<b>%{label}</b><br>DHS use cases: %{value}<extra></extra>")
+fig.show()
+
+
+# ------------------------------------------------------------
+# C) Normalized comparison: DHS vs Non-DHS topic share
+#    (simplified labels for non-technical readers)
+# ------------------------------------------------------------
+
+tc = topic_counts_lda.copy()
+
+total_dhs    = max(1, dhs_df_lda.shape[0])
+total_non    = max(1, non_df_lda.shape[0])
+
+tc["DHS_Share"]    = tc["DHS_Count"]    / total_dhs
+tc["NonDHS_Share"] = tc["NonDHS_Count"] / total_non
+
+melt = tc.melt(
+    id_vars=["Topic", "Topic_Name", "TopicLabel"],
+    value_vars=["DHS_Share", "NonDHS_Share"],
+    var_name="Group",
+    value_name="Share"
+)
+
+# Make labels friendlier
+group_label_map = {
+    "DHS_Share": "DHS use cases",
+    "NonDHS_Share": "All other agencies",
+}
+melt["GroupLabel"] = melt["Group"].map(group_label_map)
+
+# Focus on the topics where DHS has the biggest share
+top_by_dhs = tc.sort_values("DHS_Share", ascending=False).head(15)["Topic"].tolist()
+melt_top   = melt[melt["Topic"].isin(top_by_dhs)]
+
+fig = px.bar(
+    melt_top,
+    x="Share",
+    y="TopicLabel",
+    color="GroupLabel",
+    barmode="group",
+    title="How Common Each Topic Is in DHS vs Other Agencies (share of use cases)",
+    labels={
+        "Share": "Share of use cases within group",
+        "TopicLabel": "Topic",
+        "GroupLabel": "Group",
+    },
+)
+fig.update_layout(
+    yaxis={"categoryorder": "total ascending"},
+    height=650,
+    legend_title_text=""
+)
+fig.show()
+
+
+# ------------------------------------------------------------
+# D) DHS-only document map (simplified LDA version)
+#    Each dot = one DHS use case; color = topic
+#    We use PCA on gamma to get 2D coordinates (simpler than UMAP)
+# ------------------------------------------------------------
+
+# 2D coordinates from LDA topic probabilities (gamma)
+pca = PCA(n_components=2, random_state=0)
+coords = pca.fit_transform(gamma)
+
+coords_df = pd.DataFrame(coords, columns=["x", "y"])
+coords_df["lda_topic"]       = aiusecase_lda["lda_topic"].values
+coords_df["lda_topic_name"]  = aiusecase_lda["lda_topic_name"].values
+coords_df["Use Case Name"]   = aiusecase_lda["Use Case Name"].astype(str).values
+coords_df["is_dhs"]          = is_dhs.values
+
+# Keep only DHS documents
+coords_dhs = coords_df[coords_df["is_dhs"]].copy()
+
+fig = px.scatter(
+    coords_dhs,
+    x="x",
+    y="y",
+    color="lda_topic_name",
+    hover_data={
+        "Use Case Name": True,
+        "lda_topic_name": True,
+        "x": False,
+        "y": False
+    },
+    title="DHS Use Cases Grouped by Topic (each dot is a use case)",
+    labels={
+        "x": "Document position (1)",
+        "y": "Document position (2)",
+        "lda_topic_name": "Topic",
+    },
+)
+fig.update_layout(
+    legend_title_text="Topic",
+    height=700
+)
+fig.show()
+
+
+# ------------------------------------------------------------
+# E) Over-representation (Lift) – “DHS Focus Index”
+#    Lift = (share of DHS use cases in topic) / (overall share of use cases in topic)
+#    >1 means “DHS talks about this more than average”
+# ------------------------------------------------------------
+
+tc["Overall_Share"] = tc["Total_Count"] / max(1, aiusecase_lda.shape[0])
+tc["DHS_Lift"] = tc["DHS_Share"] / tc["Overall_Share"].replace(0, np.nan)
+
+lift_tab = tc.sort_values("DHS_Lift", ascending=False)[
+    [
+        "Topic",
+        "Topic_Name",
+        "TopicLabel",
+        "DHS_Count",
+        "Total_Count",
+        "DHS_Share",
+        "Overall_Share",
+        "DHS_Lift",
+    ]
+]
+
+# Optional: look at top 15 in table form
+print(lift_tab.head(15))
+
+fig = px.bar(
+    lift_tab.head(15),
+    x="DHS_Lift",
+    y="TopicLabel",
+    orientation="h",
+    title="Topics Where DHS Is Most Focused (DHS Focus Index)",
+    text="DHS_Lift",
+    labels={
+        "DHS_Lift": "DHS Focus Index\n(>1 = more DHS-heavy than average)",
+        "TopicLabel": "Topic",
+    },
+)
+fig.update_layout(
+    yaxis={"categoryorder": "total ascending"},
+    height=650
+)
+fig.show()
+
+bubble = lift_tab.copy()
+
+# Categorize topics by DHS focus (for colors)
+def focus_bucket(lift):
+    if lift >= 1.5:
+        return "More common in DHS"
+    elif lift <= 0.75:
+        return "More common in other agencies"
+    else:
+        return "Similar in DHS & others"
+
+bubble["Focus_Category"] = bubble["DHS_Lift"].apply(focus_bucket)
+
+fig = px.scatter(
+    bubble,
+    x="DHS_Lift",
+    y="Total_Count",
+    size="DHS_Count",
+    color="Focus_Category",
+    hover_name="Topic_Name",
+    hover_data={
+        "TopicLabel": True,
+        "DHS_Count": True,
+        "Total_Count": True,
+        "DHS_Lift": ":.2f"
+    },
+    title="Which Topics Are Largest and Most DHS-Focused?",
+    labels={
+        "DHS_Lift": "DHS Focus Index\n(>1 = more DHS-heavy)",
+        "Total_Count": "Total number of use cases",
+        "Focus_Category": ""
+    }
+)
+fig.update_layout(height=650)
+fig.show()
+
+import plotly.io as pio
+from pathlib import Path
+
+# Folder where you want to save HTML files
+EXPORT_DIR = Path("interactive_charts")
+EXPORT_DIR.mkdir(exist_ok=True)
+
+def save_plotly_online(fig, filename):
+    """
+    Save a Plotly figure as a self-contained HTML file that
+    loads Plotly JS from the online CDN (smaller files, fully interactive).
+    """
+    out_path = EXPORT_DIR / filename
+    fig.write_html(
+        out_path,
+        include_plotlyjs="cdn",  # JS hosted online on Plotly's CDN
+        full_html=True
+    )
+    print(f"Saved: {out_path.resolve()}")
+
+# --- Bubble chart: size = DHS_Count, x = DHS_Lift, y = Total_Count ---
+
+bubble = lift_tab.copy()
+
+# Categorize topics by how DHS-focused they are (for color)
+def focus_bucket(lift):
+    if lift >= 1.5:
+        return "More common in DHS"
+    elif lift <= 0.75:
+        return "More common in other agencies"
+    else:
+        return "Similar in DHS & others"
+
+bubble["Focus_Category"] = bubble["DHS_Lift"].apply(focus_bucket)
+
+# Optional: focus on the most active topics overall
+bubble = bubble.sort_values("Total_Count", ascending=False).head(25)
+
+fig = px.scatter(
+    bubble,
+    x="DHS_Lift",
+    y="Total_Count",
+    size="DHS_Count",
+    color="Focus_Category",
+    hover_name="Topic_Name",
+    hover_data={
+        "TopicLabel": True,
+        "DHS_Count": True,
+        "Total_Count": True,
+        "DHS_Lift": ":.2f"
+    },
+    title="Which Topics Are Largest and Most DHS-Focused?",
+    labels={
+        "DHS_Lift": "DHS Focus Index (>1 = more DHS-heavy)",
+        "Total_Count": "Total number of use cases",
+        "Focus_Category": ""
+    }
+)
+
+fig.update_layout(
+    height=650,
+    xaxis=dict(zeroline=True, zerolinewidth=1, zerolinecolor="lightgrey")
+)
+
+fig.show()
+
+# Save interactive online version
+save_plotly_online(fig, "03_dhs_focus_bubble.html")
+
+# --- Dumbbell chart: DHS_Share vs NonDHS_Share per topic ---
+
+# Start from tc, which had DHS_Share and NonDHS_Share
+tc_simple = tc.copy()
+
+# Keep top topics by overall size so the chart isn't crowded
+tc_simple["TopicTotal"] = tc_simple["Total_Count"]
+tc_simple = tc_simple.sort_values("TopicTotal", ascending=False).head(12)
+
+# Prepare long-form data for plotting
+plot_df = pd.DataFrame({
+    "TopicLabel": np.repeat(tc_simple["TopicLabel"].values, 2),
+    "GroupLabel": ["DHS", "Other agencies"] * len(tc_simple),
+    "Share": np.ravel(
+        tc_simple[["DHS_Share", "NonDHS_Share"]]
+        .rename(columns={"DHS_Share": "DHS", "NonDHS_Share": "Other agencies"})
+        .values
+    )
+})
+
+# Ensure topic order (largest at top)
+topic_order = tc_simple.sort_values("TopicTotal", ascending=False)["TopicLabel"].tolist()
+
+fig = px.scatter(
+    plot_df,
+    x="Share",
+    y="TopicLabel",
+    color="GroupLabel",
+    title="Topic Share: DHS vs Other Agencies (Dumbbell View)",
+    labels={
+        "Share": "Share of use cases within group",
+        "TopicLabel": "Topic",
+        "GroupLabel": ""
+    }
+)
+
+# Add line segments between the two points for each topic
+for topic in topic_order:
+    row = plot_df[plot_df["TopicLabel"] == topic]
+    if row.shape[0] == 2:
+        x_vals = row["Share"].tolist()
+        y_vals = [topic, topic]  # same y for both points
+        fig.add_shape(
+            type="line",
+            x0=min(x_vals),
+            y0=topic,
+            x1=max(x_vals),
+            y1=topic,
+            line=dict(width=2)
+        )
+
+fig.update_yaxes(categoryorder="array", categoryarray=topic_order)
+fig.update_xaxes(tickformat=".0%")
+fig.update_layout(height=600)
+
+fig.show()
+
+# Save interactive online version
+save_plotly_online(fig, "04_topic_share_dumbbell.html")
+
+# --- Topic Galaxy Map: Topics as 2D points based on term vectors ---
+from sklearn.decomposition import PCA
+
+# Build topic-term matrix (lda.num_topics x vocab_size)
+topic_term = np.vstack([
+    np.array([p for (_, p) in lda.show_topic(t, topn=len(lda.id2word))])
+    for t in range(lda.num_topics)
+])
+
+# Reduce to 2D
+pca = PCA(n_components=2, random_state=0)
+coords = pca.fit_transform(topic_term)
+
+galaxy = lift_tab.copy()
+galaxy["x"] = coords[:, 0]
+galaxy["y"] = coords[:, 1]
+
+# Color buckets
+def focus_bucket(lift):
+    if lift >= 1.5:  return "More common in DHS"
+    if lift <= 0.75: return "More common in other agencies"
+    return "Similar in DHS & others"
+
+galaxy["Focus"] = galaxy["DHS_Lift"].apply(focus_bucket)
+
+fig = px.scatter(
+    galaxy,
+    x="x",
+    y="y",
+    color="Focus",
+    size="Total_Count",
+    hover_name="Topic_Name",
+    hover_data={"DHS_Count": True, "Total_Count": True},
+    title="Topic Galaxy Map (Semantic Similarity Between Topics)",
+    labels={
+        "x": "Dimension 1",
+        "y": "Dimension 2",
+        "Focus": ""
+    }
+)
+
+fig.update_layout(height=650)
+fig.show()
+
+save_plotly_online(fig, "07_topic_galaxy_map.html")
+
+# Build topic × agency table
+pivot = pd.crosstab(aiusecase_lda["lda_topic_name"],
+                    aiusecase["Agency Abbreviation"],
+                    normalize="columns")
+
+fig = px.imshow(
+    pivot,
+    labels=dict(x="Agency", y="Topic", color="Share of agency's use cases"),
+    title="Which Agencies Focus on Which Topics?",
+    aspect="auto"
+)
+
+fig.update_layout(height=700)
+fig.update_coloraxes(colorbar_title="Share")
+
+fig.show()
+
+save_plotly_online(fig, "10_topic_agency_heatmap.html")
+
 #Mvrsquared:
 from gensim import matutils
 
