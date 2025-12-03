@@ -1044,10 +1044,31 @@ def render_tab_content(tab):
                                 dcc.Graph(id='graph-flagged', style={'height':'350px', 'width':'100%'}),
 
                                 html.Div(
-                                    style={'display': 'flex', 'gap': '10px', 'overflowX': 'hidden'},
+                                    style={
+                                        'display': 'flex',
+                                        'gap': '10px',
+                                        'overflowX': 'hidden',
+                                        'flexWrap': 'wrap',           # <-- allows responsive wrapping
+                                        'justifyContent': 'space-between'
+                                    },
                                     children=[
-                                        dcc.Graph(id='graph-pii', style={'flex': '1', 'height': '300px'}),
-                                        dcc.Graph(id='graph-demographics', style={'flex': '1', 'height': '300px'})
+
+                                        dcc.Graph(
+                                            id='graph-pii',
+                                            style={
+                                                'flex': '1 1 48%',    # <-- shrinkable, max half width
+                                                'height': '260px',    # smaller height
+                                                'minWidth': '250px'   # prevents collapse
+                                            }
+                                        ),
+
+                                        dcc.Graph(
+                                            id='graph-demographics',
+                                            style={
+                                                'flex': '1 1 48%',
+                                                'height': '260px',
+                                                'minWidth': '250px'
+                                            })
                                     ])
                             ])
                     ])
@@ -1714,7 +1735,7 @@ def run_proposal_predictions(n_clicks, agency, bureau, topic, topic_id, purpose,
         )
 
     card_m1 = build_result_card(
-        "Predicted Rights/Safety Impact",
+        "Predicted High Impact Classification (Rights Only, Safety Only, Both, Neither)",
         pred_label,
         confidence=pred_prob,
         extra_content=alert_message
